@@ -48,3 +48,22 @@ class UserService:
             db.commit()
             db.refresh(user)
         return user
+
+    @staticmethod
+    def update_reset_token(db: Session, user_id: int, token: str) -> None:
+        user = UserService.get_user_by_id(db, user_id)
+        if user:
+            user.reset_token = token
+            db.commit()
+
+    @staticmethod
+    def get_user_by_reset_token(db: Session, token: str) -> User:
+        return db.query(User).filter(User.reset_token == token).first()
+
+    @staticmethod
+    def update_password(db: Session, user_id: int, new_password: str) -> None:
+        user = UserService.get_user_by_id(db, user_id)
+        if user:
+            user.hashed_password = AuthService.get_password_hash(new_password)
+            user.reset_token = None
+            db.commit()

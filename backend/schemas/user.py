@@ -29,3 +29,8 @@ class LoginRequest(BaseModel):
 class LoginResponse(BaseModel):
     message: str
     user: UserOut
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str

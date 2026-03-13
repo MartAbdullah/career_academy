@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, Request, BackgroundTasks
 from sqlalchemy.orm import Session
 from database import get_db
-from schemas import UserCreate, UserOut, LoginRequest, LoginResponse
+from schemas import UserCreate, UserOut, LoginRequest, LoginResponse, ResetPasswordRequest
 from services import UserService, AuthService
 from services.mail_service import send_forgot_password_email
 from datetime import timedelta
@@ -67,13 +67,30 @@ async def forgot_password(request: Request, background_tasks: BackgroundTasks, d
     user = UserService.get_user_by_email(db, email)
     
     if user:
-        # Create a real token (using simple example for now)
-        dummy_token = "reset_token_xyz_123" 
+        # Generate a real secure token
+        token = AuthService.generate_reset_token()
         
-        # Send email in background to keep API responsive
-        background_tasks.add_task(send_forgot_password_email, email, dummy_token)
+        # Save token to user in database
+        UserService.update_reset_token(db, user.id, token)
+        
+        # Send email in background
+        background_tasks.add_task(send_forgot_password_email, email, token)
         
     return {"message": "If the email is registered, a reset link will be sent."}
+
+
+@router.post("/reset-password")
+async def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_db)):
+    # 1. Find the user associated with the token 
+    user = UserService.get_user_by_reset_token(db, data.token)
+    
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+
+    # 2. Update the password and clear the token
+    UserService.update_password(db, user.id, data.new_password)
+    
+    return {"message": "Your password has been reset successfully."}
 
 
 @router.get("/me", response_model=UserOut)

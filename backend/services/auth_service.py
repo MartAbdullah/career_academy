@@ -3,6 +3,7 @@ from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 import os
+import secrets
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -43,3 +44,7 @@ class AuthService:
             return payload
         except JWTError:
             return None
+
+    @staticmethod
+    def generate_reset_token() -> str:
+        return secrets.token_urlsafe(32)

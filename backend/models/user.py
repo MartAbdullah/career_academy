@@ -10,6 +10,7 @@ class User(Base):
     hashed_password = Column(String(255), nullable=False)
     full_name = Column(String(255))
     is_active = Column(Boolean, default=True)
+    reset_token = Column(String(255), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     class Config:

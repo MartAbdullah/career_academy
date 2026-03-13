@@ -1,5 +1,5 @@
 # Schemas Module
-from .user import UserCreate, UserOut, LoginRequest, LoginResponse
+from .user import UserCreate, UserOut, LoginRequest, LoginResponse, ResetPasswordRequest
 from .course import CourseCreate, CourseOut, CourseUpdate
 
 __all__ = [
@@ -7,6 +7,7 @@ __all__ = [
     "UserOut",
     "LoginRequest",
     "LoginResponse",
+    "ResetPasswordRequest",
     "CourseCreate",
     "CourseOut",
     "CourseUpdate",

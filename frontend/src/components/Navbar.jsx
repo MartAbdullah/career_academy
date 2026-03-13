@@ -1,9 +1,17 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { FaGraduationCap, FaBars } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
+import { FaGraduationCap, FaBars, FaSignOutAlt } from 'react-icons/fa';
+import { useAuth } from '../hooks/useAuth';
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const { user, logout, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
@@ -24,18 +32,34 @@ const Navbar = () => {
 
           {/* Action Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link 
-              to="/login" 
-              className="text-indigo-600 font-semibold hover:text-indigo-700 transition"
-            >
-              Sign In
-            </Link>
-            <Link 
-              to="/register" 
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold px-6 py-2 rounded-lg hover:shadow-lg transition"
-            >
-              Sign Up
-            </Link>
+            {isAuthenticated && user ? (
+              <>
+                <div className="text-gray-700 font-semibold">
+                  {user.full_name || user.email}
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="text-red-600 hover:text-red-700 font-semibold flex items-center gap-2 transition"
+                >
+                  <FaSignOutAlt /> Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link 
+                  to="/login" 
+                  className="text-indigo-600 font-semibold hover:text-indigo-700 transition"
+                >
+                  Sign In
+                </Link>
+                <Link 
+                  to="/register" 
+                  className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold px-6 py-2 rounded-lg hover:shadow-lg transition"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -55,8 +79,27 @@ const Navbar = () => {
             <Link to="/" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Home</Link>
             <Link to="/courses" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Courses</Link>
             <Link to="/about" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">About</Link>
-            <Link to="/login" className="block px-4 py-2 text-indigo-600 hover:bg-gray-100">Sign In</Link>
-            <Link to="/register" className="block px-4 py-2 text-indigo-600 hover:bg-gray-100">Sign Up</Link>
+            {isAuthenticated && user ? (
+              <>
+                <div className="block px-4 py-2 text-gray-700 font-semibold">
+                  {user.full_name || user.email}
+                </div>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 flex items-center gap-2"
+                >
+                  <FaSignOutAlt /> Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="block px-4 py-2 text-indigo-600 hover:bg-gray-100">Sign In</Link>
+                <Link to="/register" className="block px-4 py-2 text-indigo-600 hover:bg-gray-100">Sign Up</Link>
+              </>
+            )}
           </div>
         )}
       </div>

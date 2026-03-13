@@ -56,8 +56,10 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     }
 
     try {
+      console.log('Login: Attempting login with email:', email);
       // Call backend API
-      await login({ email, password });
+      const result = await login({ email, password });
+      console.log('Login: Backend returned:', result);
 
       // Handle Remember Me checkbox
       if (rememberMe) {
@@ -79,9 +81,28 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
         onLogin(email);
       }
 
+      console.log('Login: All setup complete, navigating to home...');
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Login failed. Please try again.');
+      console.error('Login: Caught error with full details:', {
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        data: err.response?.data,
+        message: err.message,
+        fullError: err
+      });
+      
+      // Check different error formats
+      if (err.response?.data?.detail) {
+        setError(err.response.data.detail);
+      } else if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.message) {
+        setError(err.message);
+      } else {
+        setError('Login failed. Please try again.');
+      }
+      console.error('Login: Error message set to:', err.response?.data?.detail || err.response?.data?.message || err.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }

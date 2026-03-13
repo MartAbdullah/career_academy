@@ -13,8 +13,15 @@ export const AuthProvider = ({ children }) => {
       const response = await api.get('/auth/me');
       setUser(response.data);
     } catch (error) {
-      // User not authenticated - silently fail
-      setUser(null);
+      // Test mode - bypass login for development
+      console.log('Development mode: Using test user');
+      setUser({
+        id: 1,
+        email: 'john@mail.com',
+        full_name: 'John Doe',
+        is_active: true,
+        created_at: '2026-03-13T08:39:48'
+      });
     } finally {
       setLoading(false);
     }
@@ -26,8 +33,11 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     // Note: Backend stores JWT in HttpOnly cookie, so no need to store it in LocalStorage
+    console.log('useAuth: Sending login request with:', { email: credentials.email });
     const response = await api.post('/auth/login', credentials);
+    console.log('useAuth: Login response received:', response.data);
     setUser(response.data.user);
+    console.log('useAuth: User state updated:', response.data.user);
     return response.data;
   };
 

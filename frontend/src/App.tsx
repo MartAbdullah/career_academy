@@ -4,7 +4,7 @@ import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
 import About from './pages/About';
 import Courses from './pages/Courses';
-import Login from './pages/Login.tsx';
+import Login from './pages/Login';
 import Register from './pages/Register';
 import { AuthProvider } from './hooks/useAuth';
 import ProtectedRoute from './components/ProtectedRoute';

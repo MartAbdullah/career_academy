@@ -49,8 +49,8 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
       return;
     }
 
-    if (password.length < 1) {
-      setError('Password is required');
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
       setLoading(false);
       return;
     }
@@ -58,8 +58,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     try {
       console.log('Login: Attempting login with email:', email);
       // Call backend API
-      const result = await login({ email, password });
-      console.log('Login: Backend returned:', result);
+      await login({ email, password });
 
       // Handle Remember Me checkbox
       if (rememberMe) {

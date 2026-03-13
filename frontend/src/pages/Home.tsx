@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaLaptopCode, FaDatabase, FaMobileAlt, FaArrowRight, FaStar, FaUsers, FaTrophy, FaPlayCircle } from 'react-icons/fa';
 
-const Home = () => {
+const Home: React.FC = () => {
   return (
     <div className="bg-white">
       {/* Hero Section */}

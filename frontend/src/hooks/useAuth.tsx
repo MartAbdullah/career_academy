@@ -1,11 +1,26 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import api from '../utils/api';
 
-const AuthContext = createContext();
+interface User {
+  id: number;
+  email: string;
+  name?: string;
+  full_name?: string;
+}
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  login: (credentials: any) => Promise<any>;
+  logout: () => Promise<void>;
+  isAuthenticated: boolean;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const checkAuthStatus = async () => {
     try {
@@ -24,7 +39,7 @@ export const AuthProvider = ({ children }) => {
     checkAuthStatus();
   }, []);
 
-  const login = async (credentials) => {
+  const login = async (credentials: any) => {
     // Note: Backend stores JWT in HttpOnly cookie, so no need to store it in LocalStorage
     console.log('useAuth: Sending login request with:', { email: credentials.email });
     const response = await api.post('/auth/login', credentials);
@@ -40,11 +55,25 @@ export const AuthProvider = ({ children }) => {
     window.location.href = '/login';
   };
 
+  const value = {
+    user,
+    loading,
+    login,
+    logout,
+    isAuthenticated: !!user
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};

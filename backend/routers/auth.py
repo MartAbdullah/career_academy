@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, Request
+from fastapi import APIRouter, Depends, HTTPException, Response, Request, BackgroundTasks
 from sqlalchemy.orm import Session
 from database import get_db
 from schemas import UserCreate, UserOut, LoginRequest, LoginResponse
 from services import UserService, AuthService
+from services.mail_service import send_forgot_password_email
 from datetime import timedelta
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -53,6 +54,26 @@ def login(login_data: LoginRequest, response: Response, db: Session = Depends(ge
 def logout(response: Response):
     response.delete_cookie(key="access_token")
     return {"message": "Logged out successfully"}
+
+
+@router.post("/forgot-password")
+async def forgot_password(request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    data = await request.json()
+    email = data.get("email")
+    
+    if not email:
+        raise HTTPException(status_code=400, detail="Email is required")
+        
+    user = UserService.get_user_by_email(db, email)
+    
+    if user:
+        # Create a real token (using simple example for now)
+        dummy_token = "reset_token_xyz_123" 
+        
+        # Send email in background to keep API responsive
+        background_tasks.add_task(send_forgot_password_email, email, dummy_token)
+        
+    return {"message": "If the email is registered, a reset link will be sent."}
 
 
 @router.get("/me", response_model=UserOut)

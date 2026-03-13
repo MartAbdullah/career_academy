@@ -3,12 +3,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
 
-# Database configuration - SQLite (no server needed)
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./career_academy.db")
+# Database configuration - MySQL
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "mysql+pymysql://root:!%40%23123qwert@127.0.0.1:3306/career_academy")
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False} if "sqlite" in SQLALCHEMY_DATABASE_URL else {}
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

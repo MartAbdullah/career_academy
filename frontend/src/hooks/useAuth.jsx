@@ -13,15 +13,8 @@ export const AuthProvider = ({ children }) => {
       const response = await api.get('/auth/me');
       setUser(response.data);
     } catch (error) {
-      // Test mode - bypass login for development
-      console.log('Development mode: Using test user');
-      setUser({
-        id: 1,
-        email: 'john@mail.com',
-        full_name: 'John Doe',
-        is_active: true,
-        created_at: '2026-03-13T08:39:48'
-      });
+      // User not authenticated - silently fail
+      setUser(null);
     } finally {
       setLoading(false);
     }
